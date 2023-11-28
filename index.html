@@ -142,7 +142,7 @@
       </div>
     </section>
   </main>
-  
+   
   <script type="module">
   
   /* ========================== */
@@ -152,14 +152,30 @@
   // import { Web5 } from 'https://cdn.jsdelivr.net/npm/@tbd54566975/web5@0.7.0/dist/browser.mjs';  //original version 
 
 
-  import { Web5 } from '  https://cdn.jsdelivr.net/npm/@web5/api@0.8.2/dist/browser.mjs';  
+ 
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  const supabase = createClient('db.ubpnbnzpfmtbbrgigzjq.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0')
+
+
+
+
+
+let { data: public_dwn_did_list, error } = await supabase
+  .from('public_dwn_did_registry')
+  .select('*')
+
+
+
+import { supabase } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';  
+
+  import { Web5 } from 'https://cdn.jsdelivr.net/npm/@web5/api@0.8.2/dist/browser.mjs';  
 
   //import { Web5 } from 'https://unpkg.com/0.8.2/dist/browser.js';
   
 
 
 
-
+  const hard_coded_self_label='default-rwo'
   let web5;
   let myDid;
   let record;
@@ -176,6 +192,16 @@
   async function didCreate() {
     ({ web5, did: myDid } = await Web5.connect({sync:'5s'}));
     console.log("myDid: "+myDid)
+
+
+    const { data_after_insert, error } = await supabase
+  .from('public_dwn_did_registry')
+  .upsert(
+    { did: myDid, protocol_list: '{["plaintext","others","..."]}' , label:'hard_coded_self_label'},
+  )
+  .select()
+
+
 
         if ( myDid == roman_did) {
           i_am = ' Roman'
