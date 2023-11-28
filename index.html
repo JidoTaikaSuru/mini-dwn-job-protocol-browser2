@@ -459,6 +459,8 @@ const dwnCreateAndSendSharedToDoList = async () => {
   });
 
 
+
+    await data_update();
   };
 
   
@@ -570,6 +572,14 @@ const dwnCreateAndSendSharedToDoList = async () => {
   let dwnDeleteOutputDetailsTextarea = document.querySelector('#dwn-delete .output details textarea');
   let registered = false;
   
+
+
+  const data_update = async () => {
+    let indexed_db_size=(await navigator.storage.estimate()).usageDetails.indexedDB
+    console.log("🚀 ~ ~ indexed_db_size:", indexed_db_size)
+
+  }
+
   function update() {
 
     if (!myDid) {
@@ -602,6 +612,8 @@ const dwnCreateAndSendSharedToDoList = async () => {
     dwnDeleteInputButton.disabled = noRecord;
     dwnDeleteOutputSummary.innerHTML = noRecord ? `&#x2714; Deleted!` : '...';
     dwnDeleteOutputDetailsTextarea.value = noRecord ? JSON.stringify(record, null, 2) : '';
+
+
   }
   
   didCreateInputButton.addEventListener('click', async () => {
@@ -645,11 +657,13 @@ const dwnCreateAndSendSharedToDoList = async () => {
 
   dwnGetSharedTODORecordsButton.addEventListener('click', async () => {
     await dwnQuerySharedToDoList();
+    await data_update();
   });
 
 
   dwnSendNewSharedTODOButton.addEventListener('click', async () => {
       await dwnCreateAndSendSharedToDoList();  //
+      await data_update();
   });
 
 
@@ -677,6 +691,7 @@ const dwnCreateAndSendSharedToDoList = async () => {
     dwnSendInputProgress.style.visibility = 'hidden';
   
     update();
+    await data_update();
   });
   
   dwnReadInputButton.addEventListener('click', async () => {
