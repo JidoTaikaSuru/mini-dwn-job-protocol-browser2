@@ -210,7 +210,7 @@ let { data: public_dwn_did_list, error } = await supabase
     const { data_after_insert, error } = await supabase
   .from(did_db_table)
   .upsert(
-    { did: myDid, protocol_list: {"lol":["lol"]} , label:'hard_coded_self_label', ip_info:ip_info  , user_agent:user_agent , updated_client_side_time: (new Date()).toISOString()},
+    { did: myDid, protocol_list: {"lol":["lol"]} , label:'hard_coded_self_label', ip_info_jsonb:ip_info  , user_agent:user_agent , updated_client_side_time: (new Date()).toISOString()},
   )
   .select()
 
