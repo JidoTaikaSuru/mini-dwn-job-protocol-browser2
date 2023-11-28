@@ -273,9 +273,12 @@ let { data: public_dwn_did_list, error } = await supabase
     console.log("🚀 ~ file: index.html:267 ~ dwnSendTextToOtherDWNRecord ~ record:", record)
 
     ({ send_status } = await record.send(recipientDWN)  );
+      if(send_status)
     console.log("🚀 ~ file: index.html:269 ~ dwnSendTextToOtherDWNRecord ~ send_status:", send_status)
+    else 
+      console.log(" send_status is undefined" )
 
-    return send_status;
+    return "done idk yet if it worked :D ";
   }
   
   
