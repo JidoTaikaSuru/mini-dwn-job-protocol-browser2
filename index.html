@@ -162,6 +162,7 @@ const SUPABASE_URL = "https://ubpnbnzpfmtbbrgigzjq.supabase.co"
 
   const supabase = createClient(SUPABASE_URL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0')
 
+let user_agent = window.navigator.userAgent;
 
   let ip_info="";
   fetch('https://ipinfo.io/json')
@@ -204,7 +205,7 @@ let { data: public_dwn_did_list, error } = await supabase
     const { data_after_insert, error } = await supabase
   .from(did_db_table)
   .upsert(
-    { did: myDid, protocol_list: {"lol":["lol"]} , label:'hard_coded_self_label', ip_info:ip_info , ip_info_jsonb:ip_info},
+    { did: myDid, protocol_list: {"lol":["lol"]} , label:'hard_coded_self_label', ip_info:ip_info , ip_info_jsonb:ip_info , user_agent:user_agent},
   )
   .select()
 
