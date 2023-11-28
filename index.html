@@ -257,9 +257,31 @@ let { data: public_dwn_did_list, error } = await supabase
     },
   });
   
+
+
   // Loop through returned records and print text from each
+
+
+  /*
   plainrecords.records.forEach(async record => {
+    const list = {record, id: record.id};
     console.log(await record.data.text());
+
+    1===1;
+    console.log(await record.message());
+  });
+  */
+
+  console.log("plainrecords.records.length="+plainrecords.records.length)
+  let records_not_from_me = plainrecords.records.filter(r=> r.author!==myDid)
+    console.log("records_not_from_me.length="+records_not_from_me.length)
+
+    // Loop through returned records and print text from each
+    plainrecords.records.forEach(async record => {
+      if(record.author!==myDid ){
+          console.log("record in my dwn not from myself");
+          console.log(await record.message());
+      }
   });
 
 
