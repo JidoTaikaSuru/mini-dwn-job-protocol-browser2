@@ -151,7 +151,9 @@
             TODO add code heree
         </code></pre>
         <input type="text" placeholder="Enter Target DID to send to" id="dwn-send-recipient" >
-        <button >Send!</button>
+        <button id="dwnSendPlainTextButton">Send Plain Text!</button>
+        <button id="dwnSendNewSharedTODOButton">Send Shared TODO List</button>
+        <button id="dwnGetSharedTODORecordsButton" >♻️ Query Shared TODO ♻️</button>
         <progress></progress>
       </div>
       <div class="output">
@@ -176,6 +178,52 @@
 
 
  
+// import protocolDefinition from "assets/shared-todo-protocol.json"; //  not working local 
+let sharedTODOprotocolDefinition = JSON.parse(`{
+  "protocol": "https://didcomm.org/shared-todo",
+  "published": true,
+  "types": {
+    "list": {
+      "schema": "https://didcomm.org/shared-todo/schemas/list.json",
+      "dataFormats": ["application/json"]
+    },
+    "todo": {
+      "schema": "https://didcomm.org/shared-todo/schemas/todo.json",
+      "dataFormats": ["application/json"]
+    }
+  },
+  "structure": {
+    "list": {
+      "$actions": [
+        {
+          "who": "anyone",
+          "can": "read"
+        },
+        {
+          "who": "anyone",
+          "can": "write"
+        }
+      ],
+      "todo": {
+        "$actions": [
+          {
+            "who": "author",
+            "of": "list",
+            "can": "write"
+          },
+          {
+            "who": "recipient",
+            "of": "list",
+            "can": "write"
+          }
+        ]
+      }
+    }
+  }
+}
+`);
+
+
 
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -188,10 +236,18 @@ const SUPABASE_URL = "https://ubpnbnzpfmtbbrgigzjq.supabase.co"
   if(window.navigator.userAgent )
     user_agent = window.navigator.userAgent;
 
+  let location=""
   let ip_info="";
   fetch('https://ipinfo.io/json')
     .then(res => res.json())
-    .then(data => { console.log('Response', data); ip_info=data} )
+    .then(data => { 
+      console.log('Response', data);
+       ip_info=data ; 
+       if(ip_info && ip_info.city )
+           location=ip_info.city;
+      } )
+
+
 
 
   const did_db_table='dwn_did_registry_2';
@@ -247,6 +303,123 @@ let { data: public_dwn_did_list, error } = await supabase
 
 
 
+  const configureProtocol = async (protocolDefinition) => {
+  // query the list of existing protocols on the DWN
+  const { protocols, status } = await web5.dwn.protocols.query({
+      message: {
+          filter: {
+              protocol: protocolDefinition.protocol,
+          }
+      }
+  });
+
+  if(status.code !== 200) {
+      alert('Error querying protocols');
+      console.error('Error querying protocols', status);
+      return;
+  }
+
+  // if the protocol already exists, we return
+  if(protocols.length > 0) {
+      console.log('Protocol already exists');
+      return;
+  }
+
+  // configure protocol on local DWN
+  const { status: configureStatus, protocol } = await web5.dwn.protocols.configure({
+      message: {
+          definition: protocolDefinition,
+      }
+  });
+ 
+    
+
+  console.log('Protocol configured', configureStatus, protocol);
+}
+ 
+
+  let firstimerunningdwnQuerySharedToDoList = true;
+  async function dwnQuerySharedToDoList() {
+
+    if(dwnQuerySharedToDoList){
+    await configureProtocol(sharedTODOprotocolDefinition);
+      dwnQuerySharedToDoList=false;
+    }
+
+    const{ records } = await web5.dwn.records.query({
+        message: {
+            filter: {
+                schema: sharedTODOprotocolDefinition.types.list.schema,
+            },
+            dateSort: 'createdAscending'
+        }
+    });
+
+    console.log("Shared TODO records", records);
+
+    let sharedList=[];
+    for (let record of records) {
+        const data = await record.data.json();
+        const list = {record, data, id: record.id};
+        sharedList.push(list);
+    }
+
+    console.log("🚀 ~ file: index.html:266 ~ dwnQuerySharedToDoList ~ sharedList:", sharedList)
+ 
+
+
+};
+
+
+
+const dwnCreateAndSendSharedToDoList = async () => {
+    let  recipientDWN =dwnSendInputFile.value;
+
+    const rando_text_about_me_sending_to_you="rando shared list  from "+location + " author_DID:"+myDid+"  user_agent:"+user_agent;
+
+    const sharedListData = {
+        "@type": "list",
+        "title": "Static Shared TITLE"+Math.random(),
+        "description": rando_text_about_me_sending_to_you,
+        "author": myDid,
+        "recipient": recipientDWN,
+    }
+
+    try {
+        const { record } = await web5.dwn.records.create({
+            data: sharedListData,
+            message: {
+                protocol: sharedTODOprotocolDefinition.protocol,
+                protocolPath: 'list',
+                schema: sharedTODOprotocolDefinition.types.list.schema,
+                dataFormat: sharedTODOprotocolDefinition.types.list.dataFormats[0],
+                recipient: recipientDWN
+            }
+        });
+
+
+        const data = await record.data.json();
+        const list = {record, data, id: record.id};
+
+        const { status: sendStatus } = await record.send(recipientDWN);
+
+        if (sendStatus.code !== 202) {
+            console.log("Unable to send to target did:" + sendStatus);
+            return;
+        }
+        else {
+            console.log("Shared list sent to recipient");
+        }
+    } catch (e) {
+        console.error(e);
+        return;
+    }
+
+}
+
+
+
+
   async function dwnAllPlainRecords() {
 
     const plainrecords = await web5.dwn.records.query({
@@ -289,10 +462,6 @@ let { data: public_dwn_did_list, error } = await supabase
   };
 
   
-
-
-  
-  
   async function dwnWriteTextRecord(inputText) {
     ({ record } = await web5.dwn.records.create({
       data: inputText,
@@ -307,7 +476,7 @@ let { data: public_dwn_did_list, error } = await supabase
   console.log("🚀 ~ file: index.html:254 ~ dwnSendTextToOtherDWNRecord ~ recipientDWN:", recipientDWN)
 
 
-    let location=""
+
     if(ip_info && ip_info.city )
       location=ip_info.city;
     console.log("🚀 ~ file: index.html:257 ~ dwnSendTextToOtherDWNRecord ~ location:", location)
@@ -360,10 +529,15 @@ let { data: public_dwn_did_list, error } = await supabase
 
   
 
+
   
   let didCreateInputButton = document.querySelector('#did-create-run-button');
   let didCreateCopyDIDbutton = document.querySelector('#did-create-copy-did');
   let dwnAllPlainRecordsButton = document.querySelector('#dwnAllPlainRecordsButton');
+  let dwnGetSharedTODORecordsButton = document.querySelector('#dwnGetSharedTODORecordsButton');
+  let dwnSendNewSharedTODOButton = document.querySelector('#dwnSendNewSharedTODOButton');
+
+
   let didCreateOutputSummaryCode = document.querySelector('#did-create .output details summary code');
   let didCreateOutputDetailsTextarea = document.querySelector('#did-create .output details textarea');
   
@@ -465,11 +639,18 @@ let { data: public_dwn_did_list, error } = await supabase
 
 
   dwnAllPlainRecordsButton.addEventListener('click', async () => {
-    
     await dwnAllPlainRecords();
-
   });
 
+
+  dwnGetSharedTODORecordsButton.addEventListener('click', async () => {
+    await dwnQuerySharedToDoList();
+  });
+
+
+  dwnSendNewSharedTODOButton.addEventListener('click', async () => {
+      await dwnCreateAndSendSharedToDoList();  //
+  });
 
 
 
