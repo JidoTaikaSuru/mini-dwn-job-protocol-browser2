@@ -69,6 +69,7 @@
           </code></pre>
         <button id="did-create-run-button">Run!</button>
         <button id="did-create-copy-did" disabled>Copy my DID</button>
+        <button id="dwnAllPlainRecordsButton" >♻️ R ♻️</button>
       </div>
       <div class="output">
         <details>
@@ -243,6 +244,31 @@ let { data: public_dwn_did_list, error } = await supabase
 
 
   };
+
+
+
+  async function dwnAllPlainRecords() {
+
+    const plainrecords = await web5.dwn.records.query({
+    message: {
+      filter: {
+        dataFormat: 'text/plain',
+      },
+    },
+  });
+  
+  // Loop through returned records and print text from each
+  plainrecords.records.forEach(async record => {
+    console.log(await record.data.text());
+  });
+
+
+  };
+
+  
+
+
+  
   
   async function dwnWriteTextRecord(inputText) {
     ({ record } = await web5.dwn.records.create({
@@ -314,6 +340,7 @@ let { data: public_dwn_did_list, error } = await supabase
   
   let didCreateInputButton = document.querySelector('#did-create-run-button');
   let didCreateCopyDIDbutton = document.querySelector('#did-create-copy-did');
+  let dwnAllPlainRecordsButton = document.querySelector('#dwnAllPlainRecordsButton');
   let didCreateOutputSummaryCode = document.querySelector('#did-create .output details summary code');
   let didCreateOutputDetailsTextarea = document.querySelector('#did-create .output details textarea');
   
@@ -385,6 +412,7 @@ let { data: public_dwn_did_list, error } = await supabase
     registered = true;
     update();
   });
+  
   didCreateOutputDetailsTextarea.addEventListener('input', () => {
     try {
       did = JSON.parse(didCreateOutputDetailsTextarea.value);
@@ -411,6 +439,14 @@ let { data: public_dwn_did_list, error } = await supabase
   
 
   });
+
+
+  dwnAllPlainRecordsButton.addEventListener('click', async () => {
+    
+    await dwnAllPlainRecords();
+
+  });
+
 
 
 
