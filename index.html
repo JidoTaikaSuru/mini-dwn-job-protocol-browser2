@@ -161,16 +161,12 @@ const SUPABASE_URL = "https://ubpnbnzpfmtbbrgigzjq.supabase.co"
   const supabase = createClient(SUPABASE_URL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0')
 
 
-
-
-
 let { data: public_dwn_did_list, error } = await supabase
   .from('public_dwn_did_registry')
   .select('*')
 
 
-
-
+  console.log("public_dwn_did_list: "+JSON.stringify(public_dwn_did_list))
 
   import { Web5 } from 'https://cdn.jsdelivr.net/npm/@web5/api@0.8.2/dist/browser.mjs';  
 
@@ -201,9 +197,12 @@ let { data: public_dwn_did_list, error } = await supabase
     const { data_after_insert, error } = await supabase
   .from('public_dwn_did_registry')
   .upsert(
-    { did: myDid, protocol_list: '{["plaintext","others","..."]}' , label:'hard_coded_self_label'},
+    { did: myDid, protocol_list: {"lol":["lol"]} , label:'hard_coded_self_label'},
   )
   .select()
+
+
+  console.log("data_after_insert: "+JSON.stringify(data_after_insert))
 
 
 
