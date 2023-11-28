@@ -151,10 +151,14 @@
 
   // import { Web5 } from 'https://cdn.jsdelivr.net/npm/@tbd54566975/web5@0.7.0/dist/browser.mjs';  //original version 
 
-
+  import clientjs from 'https://cdn.jsdelivr.net/npm/clientjs@0.2.1/+esm'
  
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-  const supabase = createClient('db.ubpnbnzpfmtbbrgigzjq.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0')
+
+
+const SUPABASE_URL = "https://ubpnbnzpfmtbbrgigzjq.supabase.co"
+
+  const supabase = createClient(SUPABASE_URL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVicG5ibnpwZm10YmJyZ2lnempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwNjQzODIsImV4cCI6MjAxNTY0MDM4Mn0.fS_FBY4mDgYVn1GDocKMuze5y_s_ZlX5acQ-QAVcvG0')
 
 
 
