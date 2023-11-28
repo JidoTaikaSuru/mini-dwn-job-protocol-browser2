@@ -78,6 +78,25 @@
         </details>
       </div>
     </section>
+    <section id="dwn-send">
+      <h1>Send Data to some other DWN</h1>
+      <div class="input">
+        <pre><code>
+            TODO add code heree
+        </code></pre>
+        <input type="text" placeholder="Enter Target DID to send to" id="dwn-send-recipient" >
+        <button >Send!</button>
+        <progress></progress>
+      </div>
+      <div class="output">
+        <details>
+          <summary>
+            <code>...</code>
+          </summary>
+          <textarea readonly></textarea>
+        </details>
+      </div>
+    </section>
     <section id="dwn-write">
       <h1>Write some data</h1>
       <div class="input">
@@ -185,7 +204,7 @@ let { data: public_dwn_did_list, error } = await supabase
   //import { Web5 } from 'https://unpkg.com/0.8.2/dist/browser.js';
 
 
-  const hard_coded_self_label='default-rwo'
+  const hard_coded_self_label='default-rwo2'
   let web5;
   let myDid;
   let record;
@@ -210,7 +229,7 @@ let { data: public_dwn_did_list, error } = await supabase
     const { data_after_insert, error } = await supabase
   .from(did_db_table)
   .upsert(
-    { did: myDid, protocol_list: {"lol":["lol"]} , label:'hard_coded_self_label', ip_info_jsonb:ip_info  , user_agent:user_agent , updated_client_side_time: (new Date()).toISOString()},
+    { did: myDid, protocol_list: {"lol":["lol"]} , label:hard_coded_self_label, ip_info_jsonb:ip_info  , user_agent:user_agent , updated_client_side_time: (new Date()).toISOString()},
   )
   .select()
 
@@ -230,6 +249,35 @@ let { data: public_dwn_did_list, error } = await supabase
     }));
     return record;
   }
+
+  async function dwnSendTextToOtherDWNRecord(recipientDWN) {
+  console.log("🚀 ~ file: index.html:254 ~ dwnSendTextToOtherDWNRecord ~ recipientDWN:", recipientDWN)
+
+
+    const location=""
+    if(ip_info && ip_info.city )
+      location=ip_info.city;
+    console.log("🚀 ~ file: index.html:257 ~ dwnSendTextToOtherDWNRecord ~ location:", location)
+
+    const rando_text_about_me_sending_to_you="Hi msg from "+location + " author_DID:"+myDid+"  user_agent:"+user_agent;
+
+
+    ({ record } = await web5.dwn.records.create({
+      data: rando_text_about_me_sending_to_you,
+      message: {
+        dataFormat: 'text/plain',
+        recipient:recipientDWN
+      },
+    }));
+
+    console.log("🚀 ~ file: index.html:267 ~ dwnSendTextToOtherDWNRecord ~ record:", record)
+
+    ({ send_status } = await record.send(recipientDWN)  );
+    console.log("🚀 ~ file: index.html:269 ~ dwnSendTextToOtherDWNRecord ~ send_status:", send_status)
+
+    return send_status;
+  }
+  
   
   async function dwnUpdateDataFromRecordWithId(data) {
     await record.update({data});
@@ -251,15 +299,27 @@ let { data: public_dwn_did_list, error } = await supabase
   
   document.querySelector('progress').remove();
   
+
+
+  
+
   let didCreateInputButton = document.querySelector('#did-create .input button');
   let didCreateOutputSummaryCode = document.querySelector('#did-create .output details summary code');
   let didCreateOutputDetailsTextarea = document.querySelector('#did-create .output details textarea');
   
+
   let dwnWriteInputFile = document.querySelector('#dwn-write .input input[type="text"]');
   let dwnWriteInputButton = document.querySelector('#dwn-write .input button');
   let dwnWriteInputProgress = document.querySelector('#dwn-write .input progress');
   let dwnWriteOutputSummary = document.querySelector('#dwn-write .output details summary code');
   let dwnWriteOutputDetailsTextarea = document.querySelector('#dwn-write .output details textarea');
+
+
+  let dwnSendInputFile = document.querySelector('#dwn-send .input input[type="text"]');
+  let dwnSendInputButton = document.querySelector('#dwn-send .input button');
+  let dwnSendInputProgress = document.querySelector('#dwn-send .input progress');
+  let dwnSendOutputSummary = document.querySelector('#dwn-send .output details summary code');
+  let dwnSendOutputDetailsTextarea = document.querySelector('#dwn-send .output details textarea');
   
   let dwnReadInputButton = document.querySelector('#dwn-read .input button');
   let dwnReadInputProgress = document.querySelector('#dwn-read .input progress');
@@ -335,6 +395,19 @@ let { data: public_dwn_did_list, error } = await supabase
     await dwnWriteTextRecord(dwnWriteInputFile.value);
     dwnWriteOutputDetailsTextarea.value = "ALR WHAT";
     dwnWriteInputButton.disabled = false;
+    dwnWriteInputProgress.style.visibility = 'hidden';
+  
+    update();
+  });
+
+
+  dwnSendInputButton.addEventListener('click', async () => {
+
+    dwnSendInputProgress.style.visibility = 'visible';
+    dwnSendOutputSummary.innerHTML = '...';
+    await dwnSendTextToOtherDWNRecord(dwnSendInputFile.value); //Boomark
+    dwnSendOutputDetailsTextarea.value = "ALR WHAT";
+
     dwnWriteInputProgress.style.visibility = 'hidden';
   
     update();
