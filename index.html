@@ -67,7 +67,8 @@
           let myDid;
           ({ web5, did: myDid } = await Web5.connect());
           </code></pre>
-        <button>Run!</button>
+        <button id="did-create-run-button">Run!</button>
+        <button id="did-create-copy-did" disabled>Copy my DID</button>
       </div>
       <div class="output">
         <details>
@@ -78,25 +79,7 @@
         </details>
       </div>
     </section>
-    <section id="dwn-send">
-      <h1>Send Data to some other DWN</h1>
-      <div class="input">
-        <pre><code>
-            TODO add code heree
-        </code></pre>
-        <input type="text" placeholder="Enter Target DID to send to" id="dwn-send-recipient" >
-        <button >Send!</button>
-        <progress></progress>
-      </div>
-      <div class="output">
-        <details>
-          <summary>
-            <code>...</code>
-          </summary>
-          <textarea readonly></textarea>
-        </details>
-      </div>
-    </section>
+
     <section id="dwn-write">
       <h1>Write some data</h1>
       <div class="input">
@@ -156,6 +139,25 @@
       <div class="output">
         <details>
           <summary>...</summary>
+          <textarea readonly></textarea>
+        </details>
+      </div>
+    </section>
+    <section id="dwn-send">
+      <h1>Send Data to some other DWN</h1>
+      <div class="input">
+        <pre><code>
+            TODO add code heree
+        </code></pre>
+        <input type="text" placeholder="Enter Target DID to send to" id="dwn-send-recipient" >
+        <button >Send!</button>
+        <progress></progress>
+      </div>
+      <div class="output">
+        <details>
+          <summary>
+            <code>...</code>
+          </summary>
           <textarea readonly></textarea>
         </details>
       </div>
@@ -238,6 +240,8 @@ let { data: public_dwn_did_list, error } = await supabase
   console.log("did_db_table error: "+JSON.stringify(error))
 
     return myDid;
+
+
   };
   
   async function dwnWriteTextRecord(inputText) {
@@ -272,9 +276,10 @@ let { data: public_dwn_did_list, error } = await supabase
 
     console.log("🚀 ~ file: index.html:267 ~ dwnSendTextToOtherDWNRecord ~ record:", record)
 
+    let send_status;
     ({ send_status } = await record.send(recipientDWN)  );
       if(send_status)
-    console.log("🚀 ~ file: index.html:269 ~ dwnSendTextToOtherDWNRecord ~ send_status:", send_status)
+          console.log("🚀 ~ file: index.html:269 ~ dwnSendTextToOtherDWNRecord ~ send_status:", send_status)
     else 
       console.log(" send_status is undefined" )
 
@@ -306,7 +311,9 @@ let { data: public_dwn_did_list, error } = await supabase
 
   
 
-  let didCreateInputButton = document.querySelector('#did-create .input button');
+  
+  let didCreateInputButton = document.querySelector('#did-create-run-button');
+  let didCreateCopyDIDbutton = document.querySelector('#did-create-copy-did');
   let didCreateOutputSummaryCode = document.querySelector('#did-create .output details summary code');
   let didCreateOutputDetailsTextarea = document.querySelector('#did-create .output details textarea');
   
@@ -356,6 +363,8 @@ let { data: public_dwn_did_list, error } = await supabase
 
     let noRecord = !record;
   
+    didCreateCopyDIDbutton.disabled = !registered;
+
     dwnWriteInputFile.disabled = !registered;
     dwnWriteInputButton.disabled = !registered || !dwnWriteInputFile.value
     dwnWriteOutputSummary.innerHTML = !noRecord ? '&#x2714; Written!' : '...';
@@ -391,6 +400,20 @@ let { data: public_dwn_did_list, error } = await supabase
     update();
   });
 
+
+  didCreateCopyDIDbutton.addEventListener('click', async () => {
+    navigator.clipboard
+      .writeText(myDid)
+      .then(
+        (success) => console.log("myDid copied"),
+        (err) => console.log("error copying text")
+      );
+  
+
+  });
+
+
+
   dwnWriteInputButton.addEventListener('click', async () => {
     dwnWriteInputButton.disabled = true;
     dwnWriteInputProgress.style.visibility = 'visible';
@@ -408,10 +431,10 @@ let { data: public_dwn_did_list, error } = await supabase
 
     dwnSendInputProgress.style.visibility = 'visible';
     dwnSendOutputSummary.innerHTML = '...';
-    await dwnSendTextToOtherDWNRecord(dwnSendInputFile.value); //Boomark
-    dwnSendOutputDetailsTextarea.value = "ALR WHAT";
+    let some_return = await dwnSendTextToOtherDWNRecord(dwnSendInputFile.value); //Boomark
+    dwnSendOutputDetailsTextarea.value =   dwnSendOutputDetailsTextarea.value  + some_return;
 
-    dwnWriteInputProgress.style.visibility = 'hidden';
+    dwnSendInputProgress.style.visibility = 'hidden';
   
     update();
   });
