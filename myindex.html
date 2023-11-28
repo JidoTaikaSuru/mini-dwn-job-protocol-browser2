@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parent Page</title>
+</head>
+<body>
+    
+<script src="https://cdn.jsdelivr.net/npm/@web5/api@0.8.2/dist/browser.mjs"></script>
+
+<div>
+    <p>Hello web5</p>
+</div>
+
+
+
+<script>
+
+import { Web5 } from "https://cdn.jsdelivr.net/npm/@web5/api@0.8.2/dist/browser.mjs";
+    let pubkey;
+    let lastMessage; 
+    const { web5, did: myDid } = await Web5.connect();
+    console.log("myDid:"+myDid)
+    setTimeout(sendMessageToIframe, 3000);
+</script>
+</body>
+</html>
