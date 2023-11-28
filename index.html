@@ -272,6 +272,7 @@ let { data: public_dwn_did_list, error } = await supabase
   });
   */
 
+  console.log(plainrecords.records)
   console.log("plainrecords.records.length="+plainrecords.records.length)
   let records_not_from_me = plainrecords.records.filter(r=> r.author!==myDid)
     console.log("records_not_from_me.length="+records_not_from_me.length)
