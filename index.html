@@ -162,17 +162,14 @@ const SUPABASE_URL = "https://ubpnbnzpfmtbbrgigzjq.supabase.co"
 
 
 let { data: public_dwn_did_list, error } = await supabase
-  .from('public_dwn_did_registry')
+  .from(did_db_table)
   .select('*')
-
 
   console.log("public_dwn_did_list: "+JSON.stringify(public_dwn_did_list))
 
   import { Web5 } from 'https://cdn.jsdelivr.net/npm/@web5/api@0.8.2/dist/browser.mjs';  
 
   //import { Web5 } from 'https://unpkg.com/0.8.2/dist/browser.js';
-  
-
 
 
   const hard_coded_self_label='default-rwo'
@@ -181,6 +178,7 @@ let { data: public_dwn_did_list, error } = await supabase
   let record;
   let all_records;
   let i_am="";
+  const did_db_table='dwn_did_registry_2';
 
   const roman_did= `did:ion:EiCfpN21p6o7dD9NImXtct5knTkOGhYy9OlSs0hdiCsrIQ:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkd24tc2lnIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4IjoicFZJcGZzX3c5YXhsU3ZGVFVWU2hSRzRuZDdCQ2RobzZ3Y0wxRms4dHB4VSJ9LCJwdXJwb3NlcyI6WyJhdXRoZW50aWNhdGlvbiJdLCJ0eXBlIjoiSnNvbldlYktleTIwMjAifSx7ImlkIjoiZHduLWVuYyIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJlX0tvTDRRZnJuZWlNSGpDWFpGNjREaWU0Vjh6NjJZaE5vN1Bzc3lRXzhRIiwieSI6IjFYZ1JsTWJfR3FqNXBaTHRzMUxlcmRQaUowN1hSNzNRX0ZyT0FtbVBCdm8ifSwicHVycG9zZXMiOlsia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoiZHduIiwic2VydmljZUVuZHBvaW50Ijp7ImVuY3J5cHRpb25LZXlzIjpbIiNkd24tZW5jIl0sIm5vZGVzIjpbImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNCIsImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduMSJdLCJzaWduaW5nS2V5cyI6WyIjZHduLXNpZyJdfSwidHlwZSI6IkRlY2VudHJhbGl6ZWRXZWJOb2RlIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlCLXh4SGxRcVBkSUN2bXl5OXhiYXpHbzBwamN0X002cmM3ZmFZczZ4Ukw5ZyJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpRGhfcjdQRmlXajR2X0JWLWtWOFVhU0Vzc0VON1YxSkN1M0puenhOTmV4aUEiLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUQ0VGVBSVh4UElldkVidlhsVkVMT1J2SWhvcGMzMVhhTlNWZW5mSzkyUzVRIn19`
  
@@ -195,7 +193,7 @@ let { data: public_dwn_did_list, error } = await supabase
 
 
     const { data_after_insert, error } = await supabase
-  .from('public_dwn_did_registry')
+  .from(did_db_table)
   .upsert(
     { did: myDid, protocol_list: {"lol":["lol"]} , label:'hard_coded_self_label'},
   )
