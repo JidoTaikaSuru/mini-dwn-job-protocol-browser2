@@ -154,6 +154,12 @@
         <button id="dwnSendPlainTextButton">Send Plain Text!</button>
         <button id="dwnSendNewSharedTODOButton">Send Shared TODO List</button>
         <button id="dwnGetSharedTODORecordsButton" >♻️ Query Shared TODO ♻️</button>
+        <button id="dwnQueryJApplicationsButton" >♻️ Query Applications ♻️</button>
+        <button id="dwnCreateAndSendJApplicationButton" >♻️ Send Applications ♻️</button>
+
+
+        
+        
         <progress></progress>
       </div>
       <div class="output">
@@ -218,6 +224,39 @@ let sharedTODOprotocolDefinition = JSON.parse(`{
           }
         ]
       }
+    }
+  }
+}
+`);
+
+
+let applicationProtocolWithoutDirectJobLink = JSON.parse(`{
+"protocol": "https://didcomm.org/uris/that/dont/resolve/are/funny/applicationProtocolWithoutDirectJobLink",
+  "published": true,
+  "types": {
+    "japplication": {
+      "schema": "https://didcomm.org/uris/that/dont/resolve/are/funny/japplication.json",
+      "dataFormats": ["application/json"]
+    }
+  },
+  "structure": {
+    "japplication": {
+      "$actions": [
+        {
+          "who": "author",
+          "of": "japplication",
+          "can": "read"
+        },
+        {
+          "who": "recipient",
+          "of": "japplication",
+          "can": "read"
+        },
+        {
+          "who": "anyone",
+          "can": "write"
+        }
+      ]
     }
   }
 }
@@ -338,9 +377,34 @@ let { data: public_dwn_did_list, error } = await supabase
 }
  
 
-  let firstimerunningdwnQuerySharedToDoList = true;
-  async function dwnQuerySharedToDoList() {
 
+
+
+async function dwnQueryJApplications() {
+    await configureProtocol(applicationProtocolWithoutDirectJobLink);
+    const{ records } = await web5.dwn.records.query({
+        message: {
+            filter: {
+                schema: applicationProtocolWithoutDirectJobLink.types.japplication.schema,
+            },
+            dateSort: 'createdAscending'
+        }
+    });
+    console.log("JApplication records", records);
+
+    let japplicationList=[];
+    for (let record of records) {
+        const data = await record.data.json();
+        const list = {record, data, id: record.id};
+        japplicationList.push(list);
+    }
+    console.log("🚀 ~ file: index.html:391 ~ dwnQueryJApplications ~ japplicationList:", japplicationList)
+};
+
+
+
+let firstimerunningdwnQuerySharedToDoList = true;
+async function dwnQuerySharedToDoList() {
     if(dwnQuerySharedToDoList){
     await configureProtocol(sharedTODOprotocolDefinition);
       dwnQuerySharedToDoList=false;
@@ -365,9 +429,6 @@ let { data: public_dwn_did_list, error } = await supabase
     }
 
     console.log("🚀 ~ file: index.html:266 ~ dwnQuerySharedToDoList ~ sharedList:", sharedList)
- 
-
-
 };
 
 
@@ -417,6 +478,52 @@ const dwnCreateAndSendSharedToDoList = async () => {
 
 }
 
+
+
+const dwnCreateAndSendJApplication = async () => {
+    let  recipientDWN =dwnSendInputFile.value;
+
+    const rando_text_about_me_sending_to_you="JApplication test from "+location + " author_DID:"+myDid+"  user_agent:"+user_agent;
+
+    const sharedListData = {
+        "@type": "japplication",
+        "title": "JApplication "+Math.random(),
+        "description": rando_text_about_me_sending_to_you,
+        "author": myDid,
+        "recipient": recipientDWN,
+    }
+
+    try {
+        const { record } = await web5.dwn.records.create({
+            data: sharedListData,
+            message: {
+                protocol: applicationProtocolWithoutDirectJobLink.protocol,
+                protocolPath: 'japplication',
+                schema: applicationProtocolWithoutDirectJobLink.types.japplication.schema,
+                dataFormat: applicationProtocolWithoutDirectJobLink.types.japplication.dataFormats[0],
+                recipient: recipientDWN
+            }
+        });
+
+
+        const data = await record.data.json();
+        const japplication = {record, data, id: record.id};
+
+        const { status: sendStatus } = await record.send(recipientDWN);
+
+        if (sendStatus.code !== 202) {
+            console.log("Unable to send to target " + sendStatus);
+            return;
+        }
+        else {
+            console.log("japplication sent to recipient");
+        }
+    } catch (e) {
+        console.error(e);
+        return;
+    }
+
+}
 
 
 
@@ -475,6 +582,9 @@ const dwnCreateAndSendSharedToDoList = async () => {
   }
 
   async function dwnSendTextToOtherDWNRecord(recipientDWN) {
+    console.log( " We don't know why this isn't working.  There is a related open issue  https://github.com/TBD54566975/web5-js/issues/317")
+
+
   console.log("🚀 ~ file: index.html:254 ~ dwnSendTextToOtherDWNRecord ~ recipientDWN:", recipientDWN)
 
 
@@ -538,7 +648,11 @@ const dwnCreateAndSendSharedToDoList = async () => {
   let dwnAllPlainRecordsButton = document.querySelector('#dwnAllPlainRecordsButton');
   let dwnGetSharedTODORecordsButton = document.querySelector('#dwnGetSharedTODORecordsButton');
   let dwnSendNewSharedTODOButton = document.querySelector('#dwnSendNewSharedTODOButton');
+  let dwnQueryJApplicationsButton = document.querySelector('#dwnQueryJApplicationsButton');
+  let dwnCreateAndSendJApplicationButton = document.querySelector('#dwnCreateAndSendJApplicationButton');
+  
 
+  
 
   let didCreateOutputSummaryCode = document.querySelector('#did-create .output details summary code');
   let didCreateOutputDetailsTextarea = document.querySelector('#did-create .output details textarea');
@@ -666,6 +780,20 @@ const dwnCreateAndSendSharedToDoList = async () => {
       await data_update();
   });
 
+
+
+  dwnQueryJApplicationsButton.addEventListener('click', async () => {
+      await dwnQueryJApplications();  //
+      await data_update();
+  });
+  
+
+  dwnCreateAndSendJApplicationButton.addEventListener('click', async () => {
+      await dwnCreateAndSendJApplication();  //
+      await data_update();
+  });
+
+  
 
 
   dwnWriteInputButton.addEventListener('click', async () => {
