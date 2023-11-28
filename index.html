@@ -254,7 +254,7 @@ let { data: public_dwn_did_list, error } = await supabase
   console.log("🚀 ~ file: index.html:254 ~ dwnSendTextToOtherDWNRecord ~ recipientDWN:", recipientDWN)
 
 
-    const location=""
+    let location=""
     if(ip_info && ip_info.city )
       location=ip_info.city;
     console.log("🚀 ~ file: index.html:257 ~ dwnSendTextToOtherDWNRecord ~ location:", location)
