@@ -152,6 +152,7 @@
         <button id="dwnQueryJApplicationsButton" >♻️ Query Applications ♻️</button>
         <button id="dwnCreateAndSendJApplicationButton" >♻️ Send Applications ♻️</button>
         <button id="dwnQueryOtherDWNgetNameButton" >♻️ Query other DWN ♻️</button>
+        <button id="dwnWriteOtherDWNNameBadButton" > Try To change other DWN's name 😈</button>
 
         <progress></progress>
       </div>
@@ -404,6 +405,8 @@ let { data: public_dwn_did_list, error } = await supabase
 
 
 async function dwnQueryOtherDWNgetName() {
+
+
     await configureProtocol(selfProfileProtocol);
 
     let  recipientDWN =dwnSendInputFile.value;
@@ -652,6 +655,57 @@ const dwnCreateAndSendJApplication = async () => {
     }
 }
 
+
+const dwnCreateOtherDWNNameAndSend = async () => {
+    let  recipientDWN =dwnSendInputFile.value;
+    console.log("🚀 ~ file: index.html:661 ~ dwnCreateOtherDWNNameAndSend ~ recipientDWN:", recipientDWN)
+
+
+          let inputText =dwnWriteInputFile.value
+    const profiledata = {
+        "@type": "selfprofile",
+        "name": inputText+Math.random(),
+        "author": myDid,
+        "recipient": recipientDWN,
+    }
+ 
+    try {
+      const { record } = await web5.dwn.records.create({
+            data: profiledata,
+            message: {
+                protocol: selfProfileProtocol.protocol,
+                protocolPath: 'selfprofile',
+                schema: selfProfileProtocol.types.selfprofile.schema,
+                dataFormat: selfProfileProtocol.types.selfprofile.dataFormats[0],
+                published: true
+            }
+
+        });
+      console.log("🚀 ~ file: index.html:684 ~ dwnCreateOtherDWNNameAndSend ~ record:", record)
+
+
+        const data = await record.data.json();
+        const name = {record, data, id: record.id};
+        console.log("🚀 ~ file: index.html:689 ~ dwnCreateOtherDWNNameAndSend ~ data:", data)
+        console.log("🚀 ~ file: index.html:690 ~ dwnCreateOtherDWNNameAndSend ~ name:", name)
+
+        const { status: sendStatus } = await record.send(recipientDWN);
+
+        if (sendStatus.code !== 202) {
+            console.log("Unable to send to target " + sendStatus);
+            return;
+        }
+        else {
+            console.log("name sent to remote DWN recipient");
+        }
+    } catch (e) {
+        console.error(e);
+        return;
+    }
+
+}
+
+
   async function dwnSendTextToOtherDWNRecord(recipientDWN) {
     console.log( " We don't know why this isn't working.  There is a related open issue  https://github.com/TBD54566975/web5-js/issues/317")
 
@@ -722,9 +776,10 @@ const dwnCreateAndSendJApplication = async () => {
   let dwnQueryJApplicationsButton = document.querySelector('#dwnQueryJApplicationsButton');
   let dwnCreateAndSendJApplicationButton = document.querySelector('#dwnCreateAndSendJApplicationButton');
   let dwnQueryOtherDWNgetNameButton = document.querySelector('#dwnQueryOtherDWNgetNameButton');
+  let dwnWriteOtherDWNNameBadButton = document.querySelector('#dwnWriteOtherDWNNameBadButton');
 
 
-  
+
   
 
   
@@ -869,7 +924,18 @@ const dwnCreateAndSendJApplication = async () => {
       await data_update();
   });
 
+
+
+  dwnWriteOtherDWNNameBadButton.addEventListener('click', async () => {
+    console.log("about to run dwnWriteOtherDWNNameBadButton() ")
+      await dwnCreateOtherDWNNameAndSend();  //
+      await data_update();
+  });
+
   
+
+  
+
 
   dwnCreateAndSendJApplicationButton.addEventListener('click', async () => {
       await dwnCreateAndSendJApplication();  //
