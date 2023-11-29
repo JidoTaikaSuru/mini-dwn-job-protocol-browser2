@@ -82,17 +82,12 @@
     </section>
 
     <section id="dwn-write">
-      <h1>Write some data</h1>
+      <h1>Edit Profile</h1>
       <div class="input">
         <pre><code>
-          let result = await web5.dwn.records.create({
-            data,
-            message: {
-              dataFormat: 'text/plain',
-            },
-          });
+          Add your profile name
         </code></pre>
-        <input type="text" placeholder="Enter text" disabled>
+        <input type="text" placeholder="Enter Name" disabled>
         <button disabled>Run!</button>
         <progress></progress>
       </div>
@@ -148,7 +143,7 @@
       <h1>Send Data to some other DWN</h1>
       <div class="input">
         <pre><code>
-            TODO add code heree
+          look in <b>console</b>. ui is TODO
         </code></pre>
         <input type="text" placeholder="Enter Target DID to send to" id="dwn-send-recipient" >
         <button id="dwnSendPlainTextButton">Send Plain Text!</button>
@@ -156,10 +151,8 @@
         <button id="dwnGetSharedTODORecordsButton" >♻️ Query Shared TODO ♻️</button>
         <button id="dwnQueryJApplicationsButton" >♻️ Query Applications ♻️</button>
         <button id="dwnCreateAndSendJApplicationButton" >♻️ Send Applications ♻️</button>
+        <button id="dwnQueryOtherDWNgetNameButton" >♻️ Query other DWN ♻️</button>
 
-
-        
-        
         <progress></progress>
       </div>
       <div class="output">
@@ -264,6 +257,35 @@ let applicationProtocolWithoutDirectJobLink = JSON.parse(`{
 
 
 
+let selfProfileProtocol = JSON.parse(`{
+"protocol": "https://didcomm.org/uris/that/dont/resolve/are/funny/selfProfileProtocol",
+  "published": true,
+  "types": {
+    "selfprofile": {
+      "schema": "https://didcomm.org/uris/that/dont/resolve/are/funny/selfprofile.json",
+      "dataFormats": ["application/json"]
+    }
+  },
+  "structure": {
+    "selfprofile": {
+      "$actions": [
+        {
+          "who": "author",
+          "of": "selfprofile",
+          "can": "write"
+        },
+        {
+          "who": "anyone",
+          "can": "read"
+        }
+      ]
+    }
+  }
+}
+`);
+
+
+
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 
@@ -310,14 +332,6 @@ let { data: public_dwn_did_list, error } = await supabase
   let i_am="";
 
 
-  const roman_did= `did:ion:EiCfpN21p6o7dD9NImXtct5knTkOGhYy9OlSs0hdiCsrIQ:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkd24tc2lnIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4IjoicFZJcGZzX3c5YXhsU3ZGVFVWU2hSRzRuZDdCQ2RobzZ3Y0wxRms4dHB4VSJ9LCJwdXJwb3NlcyI6WyJhdXRoZW50aWNhdGlvbiJdLCJ0eXBlIjoiSnNvbldlYktleTIwMjAifSx7ImlkIjoiZHduLWVuYyIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJlX0tvTDRRZnJuZWlNSGpDWFpGNjREaWU0Vjh6NjJZaE5vN1Bzc3lRXzhRIiwieSI6IjFYZ1JsTWJfR3FqNXBaTHRzMUxlcmRQaUowN1hSNzNRX0ZyT0FtbVBCdm8ifSwicHVycG9zZXMiOlsia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoiZHduIiwic2VydmljZUVuZHBvaW50Ijp7ImVuY3J5cHRpb25LZXlzIjpbIiNkd24tZW5jIl0sIm5vZGVzIjpbImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNCIsImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduMSJdLCJzaWduaW5nS2V5cyI6WyIjZHduLXNpZyJdfSwidHlwZSI6IkRlY2VudHJhbGl6ZWRXZWJOb2RlIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlCLXh4SGxRcVBkSUN2bXl5OXhiYXpHbzBwamN0X002cmM3ZmFZczZ4Ukw5ZyJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpRGhfcjdQRmlXajR2X0JWLWtWOFVhU0Vzc0VON1YxSkN1M0puenhOTmV4aUEiLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUQ0VGVBSVh4UElldkVidlhsVkVMT1J2SWhvcGMzMVhhTlNWZW5mSzkyUzVRIn19`
- 
-  const ruben_did=`did:ion:EiCy4crTGJZf4MoZrmhVK3Ob16WvifY1dwS_L7-LS1LEiw:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkd24tc2lnIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4IjoiWkhrWWxkOWZPempBNkdYSnJlNkFWLUphNnBjd2ZwQlM3VmwwczJYeEhSdyJ9LCJwdXJwb3NlcyI6WyJhdXRoZW50aWNhdGlvbiJdLCJ0eXBlIjoiSnNvbldlYktleTIwMjAifSx7ImlkIjoiZHduLWVuYyIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJUSWhEZ0xGcGpoRHJydjJrdjJlLXc5X1ZoQ0ticHk1UnJfRUozZHZia3k4IiwieSI6IlVZMVAtUExYMGF1RkhfZGFfRzV3ZlcycWZhRDZraXVrWGNHWkN1RVVwU00ifSwicHVycG9zZXMiOlsia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoiZHduIiwic2VydmljZUVuZHBvaW50Ijp7ImVuY3J5cHRpb25LZXlzIjpbIiNkd24tZW5jIl0sIm5vZGVzIjpbImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduMCIsImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNCJdLCJzaWduaW5nS2V5cyI6WyIjZHduLXNpZyJdfSwidHlwZSI6IkRlY2VudHJhbGl6ZWRXZWJOb2RlIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlCQUtMZjRsNHI2ZzlBLWNBd003bnRjdTVJM19zVndSdHE5TnA3OVJ6S1BvZyJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpREV0WXpEaS15WmpPYjRqbXJkdnNuZS1UbEtYZmZXSjZWRi1leUh3amRLMHciLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUN3Ylo2SWZZUzBNWDBaNS02alNqWG5vMFdZZVBWVnk5SzMwQllCM3NkdGpnIn19`
-
-  const ruben_chrome_main_lambent_medovik_ef59a6_netlify_app =`did:ion:EiCy4crTGJZf4MoZrmhVK3Ob16WvifY1dwS_L7-LS1LEiw:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkd24tc2lnIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4IjoiWkhrWWxkOWZPempBNkdYSnJlNkFWLUphNnBjd2ZwQlM3VmwwczJYeEhSdyJ9LCJwdXJwb3NlcyI6WyJhdXRoZW50aWNhdGlvbiJdLCJ0eXBlIjoiSnNvbldlYktleTIwMjAifSx7ImlkIjoiZHduLWVuYyIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJUSWhEZ0xGcGpoRHJydjJrdjJlLXc5X1ZoQ0ticHk1UnJfRUozZHZia3k4IiwieSI6IlVZMVAtUExYMGF1RkhfZGFfRzV3ZlcycWZhRDZraXVrWGNHWkN1RVVwU00ifSwicHVycG9zZXMiOlsia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoiZHduIiwic2VydmljZUVuZHBvaW50Ijp7ImVuY3J5cHRpb25LZXlzIjpbIiNkd24tZW5jIl0sIm5vZGVzIjpbImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduMCIsImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNCJdLCJzaWduaW5nS2V5cyI6WyIjZHduLXNpZyJdfSwidHlwZSI6IkRlY2VudHJhbGl6ZWRXZWJOb2RlIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlCQUtMZjRsNHI2ZzlBLWNBd003bnRjdTVJM19zVndSdHE5TnA3OVJ6S1BvZyJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpREV0WXpEaS15WmpPYjRqbXJkdnNuZS1UbEtYZmZXSjZWRi1leUh3amRLMHciLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUN3Ylo2SWZZUzBNWDBaNS02alNqWG5vMFdZZVBWVnk5SzMwQllCM3NkdGpnIn19`
-
-
-  const ruben_chrome_main_lambent_medovik_ef59a6_netlify_app_chrome = `did:ion:EiB6_WZy0dbT9XZfAsTwuCH3jdNI2TXsrkSWgjwz0SJm8w:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkd24tc2lnIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4IjoiMGVlak9faWc3RWNCMHY4YVlOenppQk5LZUNGa2xuelZaU1QxemNTQUxzTSJ9LCJwdXJwb3NlcyI6WyJhdXRoZW50aWNhdGlvbiJdLCJ0eXBlIjoiSnNvbldlYktleTIwMjAifSx7ImlkIjoiZHduLWVuYyIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiI4SVRfb1BBVjNoRFU4RTFPRlA2VDBHWWliclZsb0g1eER6R3BBV0ZoVW5NIiwieSI6IkdsajRvd2ZUMGNxZDVCV0JMenlBODQxOWtHMF9HN2R6YnhnNDVpUGlkZG8ifSwicHVycG9zZXMiOlsia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoiZHduIiwic2VydmljZUVuZHBvaW50Ijp7ImVuY3J5cHRpb25LZXlzIjpbIiNkd24tZW5jIl0sIm5vZGVzIjpbImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNiIsImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNCJdLCJzaWduaW5nS2V5cyI6WyIjZHduLXNpZyJdfSwidHlwZSI6IkRlY2VudHJhbGl6ZWRXZWJOb2RlIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlCdUVBSU9NZjM4ejRiai1laWdzclR1eVY0cDMweG9BMFI1UkVVRWNaV1p0dyJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpQ1N3RXpRUjJBdS1jcllKZ1JMbUp6Vl9xUndGWFVUMnY2M0hOQmJTTkFCa2ciLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaURwSGl0d0g5WHJPWVc0Y0VlY2hmUGRaakpyT0pSaFJveFdxQTB6bm9rSVZnIn19`
 
   
   async function didCreate() {
@@ -335,6 +349,8 @@ let { data: public_dwn_did_list, error } = await supabase
 
   console.log("did_db_table error: "+JSON.stringify(error))
 
+  await configureProtocol(selfProfileProtocol);
+  
     return myDid;
 
 
@@ -375,9 +391,41 @@ let { data: public_dwn_did_list, error } = await supabase
 
   console.log('Protocol configured', configureStatus, protocol);
 }
+
+
  
 
 
+
+
+
+
+
+
+
+async function dwnQueryOtherDWNgetName() {
+    await configureProtocol(selfProfileProtocol);
+
+    let  recipientDWN =dwnSendInputFile.value;
+     console.log("🚀 ~ file:  about to query his dwn for selfProfile recipientDWN:", recipientDWN)
+     // Reads the indicated record from Bob's DWNs
+      const { record } = await web5.dwn.records.read({
+        from: recipientDWN,
+        message: {
+          filter:{
+            protocol: selfProfileProtocol.protocol,
+
+          }
+        }
+      });
+      console.log("🚀 ~ file: index.html:421 ~ dwnQueryOtherDWNgetName ~ record:", record)
+
+// assuming the record is a json payload
+const data = await record.data.json();
+console.log("🚀 ~ file: index.html:421 ~ dwnQueryOtherDWNgetName ~ data:", data)
+
+  
+};
 
 
 async function dwnQueryJApplications() {
@@ -571,15 +619,38 @@ const dwnCreateAndSendJApplication = async () => {
   };
 
   
-  async function dwnWriteTextRecord(inputText) {
-    ({ record } = await web5.dwn.records.create({
-      data: inputText,
-      message: {
-        dataFormat: 'text/plain',
-      },
-    }));
+  async function dwnCreateSelfProfileName(inputText) {
+  console.log("🚀 ~ file: index.html:588 ~ dwnCreateSelfProfileName ~ inputText:", inputText)
+
+      
+    const profiledata = {
+        "@type": "selfprofile",
+        "name": inputText+Math.random(),
+        "author": myDid,
+    }
+
+    try {
+        const { record } = await web5.dwn.records.create({
+            data: profiledata,
+            message: {
+                protocol: selfProfileProtocol.protocol,
+                protocolPath: 'selfprofile',
+                schema: selfProfileProtocol.types.selfprofile.schema,
+                dataFormat: selfProfileProtocol.types.selfprofile.dataFormats[0],
+                published: true
+            }
+
+        });
+
+        if(record)
+          console.log("🚀 ~ file: index.html:609 ~ dwnCreateSelfProfileName ~ record:", record)
     return record;
-  }
+    }
+    catch(e){
+      console.log("🚀 ~ file: index.html:611 ~ dwnWriteTextRecord ~ ERROR :", e)
+      
+    }
+}
 
   async function dwnSendTextToOtherDWNRecord(recipientDWN) {
     console.log( " We don't know why this isn't working.  There is a related open issue  https://github.com/TBD54566975/web5-js/issues/317")
@@ -650,6 +721,10 @@ const dwnCreateAndSendJApplication = async () => {
   let dwnSendNewSharedTODOButton = document.querySelector('#dwnSendNewSharedTODOButton');
   let dwnQueryJApplicationsButton = document.querySelector('#dwnQueryJApplicationsButton');
   let dwnCreateAndSendJApplicationButton = document.querySelector('#dwnCreateAndSendJApplicationButton');
+  let dwnQueryOtherDWNgetNameButton = document.querySelector('#dwnQueryOtherDWNgetNameButton');
+
+
+  
   
 
   
@@ -788,6 +863,14 @@ const dwnCreateAndSendJApplication = async () => {
   });
   
 
+
+  dwnQueryOtherDWNgetNameButton.addEventListener('click', async () => {
+      await dwnQueryOtherDWNgetName();  //
+      await data_update();
+  });
+
+  
+
   dwnCreateAndSendJApplicationButton.addEventListener('click', async () => {
       await dwnCreateAndSendJApplication();  //
       await data_update();
@@ -800,7 +883,7 @@ const dwnCreateAndSendJApplication = async () => {
     dwnWriteInputButton.disabled = true;
     dwnWriteInputProgress.style.visibility = 'visible';
     dwnWriteOutputSummary.innerHTML = '...';
-    await dwnWriteTextRecord(dwnWriteInputFile.value);
+    await dwnCreateSelfProfileName(dwnWriteInputFile.value);
     dwnWriteOutputDetailsTextarea.value = "ALR WHAT";
     dwnWriteInputButton.disabled = false;
     dwnWriteInputProgress.style.visibility = 'hidden';
